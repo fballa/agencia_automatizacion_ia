@@ -3,17 +3,23 @@ class NeuroNav {
     this.header = document.getElementById('header');
     this.nav = document.getElementById('mainNav');
     this.toggle = document.getElementById('menuToggle');
-    if (!this.header || !this.nav || !this.toggle) return;
+    this.closeBtn = document.getElementById('navClose');
+    if (!this.header || !this.nav || !this.toggle || !this.closeBtn) return;
     this.navLinks = this.nav.querySelectorAll('a');
+    this.overlay = this.createOverlay();
     this.init();
+  }
+  createOverlay() {
+    const el = document.createElement('div');
+    el.className = 'nav-overlay';
+    el.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(el);
+    return el;
   }
   init() {
     this.toggle.addEventListener('click', () => this.toggleMenu());
-    document.addEventListener('click', (e) => {
-      if (this.nav.classList.contains('open') && !this.nav.contains(e.target) && !this.toggle.contains(e.target)) {
-        this.closeMenu();
-      }
-    });
+    this.closeBtn.addEventListener('click', () => this.closeMenu());
+    this.overlay.addEventListener('click', () => this.closeMenu());
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.nav.classList.contains('open')) this.closeMenu();
     });
@@ -25,19 +31,16 @@ class NeuroNav {
     const isOpen = this.nav.classList.toggle('open');
     this.toggle.classList.toggle('active');
     this.toggle.setAttribute('aria-expanded', isOpen);
+    this.overlay.classList.toggle('active');
+    this.header.classList.toggle('menu-open', isOpen);
     document.body.style.overflow = isOpen ? 'hidden' : '';
-    if (!isOpen) this.resetScroll();
   }
   closeMenu() {
     this.nav.classList.remove('open');
     this.toggle.classList.remove('active');
     this.toggle.setAttribute('aria-expanded', 'false');
+    this.overlay.classList.remove('active');
+    this.header.classList.remove('menu-open');
     document.body.style.overflow = '';
-    this.resetScroll();
-  }
-  resetScroll() {
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
   }
 }
